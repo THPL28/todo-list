@@ -20,3 +20,17 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class TaskShare(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="shares")
+    shared_with = models.ForeignKey(User, on_delete=models.CASCADE, related_name="shared_tasks")
+    can_edit = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("task", "shared_with")
+
+    def __str__(self):
+        permission = "edit" if self.can_edit else "read"
+        return f"{self.task} -> {self.shared_with} ({permission})"
