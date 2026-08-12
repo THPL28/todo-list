@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     "django_filters",
     "apps.users",
     "apps.categories",
+    "apps.tasks",
 ]
 
 MIDDLEWARE = [
