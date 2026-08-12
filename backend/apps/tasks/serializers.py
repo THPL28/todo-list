@@ -24,3 +24,14 @@ class TaskShareSerializer(serializers.ModelSerializer):
         model = TaskShare
         fields = ["id", "task", "shared_with", "can_edit", "created_at"]
         read_only_fields = ["created_at"]
+
+    def validate(self, attrs):
+        request = self.context.get("request")
+        task = attrs.get("task")
+        shared_with = attrs.get("shared_with")
+
+        if request is None or task.owner != request.user:
+            raise serializers.ValidationError("Only the task owner can share this task.")
+        if shared_with == task.owner:
+            raise serializers.ValidationError("Task owner cannot share a task with themselves.")
+        return attrs

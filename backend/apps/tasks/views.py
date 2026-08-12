@@ -7,6 +7,8 @@ from .models import Task, TaskShare
 from .serializers import TaskSerializer, TaskShareSerializer
 from .permissions import IsOwnerOrShared
 from .filters import TaskFilter
+from apps.notifications.models import Notification
+from apps.notifications.services import NotificationService
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -32,4 +34,14 @@ class TaskShareViewSet(viewsets.ModelViewSet):
         return TaskShare.objects.filter(task__owner=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save()
+        share = serializer.save()
+        NotificationService.create_and_send(
+            recipient=share.shared_with,
+            event_type=Notification.EVENT_TASK_SHARED,
+            payload={
+                "task_id": share.task.id,
+                "task_title": share.task.title,
+                "shared_by": self.request.user.username,
+                "can_edit": share.can_edit,
+            },
+        )

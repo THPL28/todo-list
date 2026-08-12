@@ -11,4 +11,5 @@ urlpatterns = [
     path("", include(router.urls)),
     path("", include("apps.categories.urls")),
     path("", include("apps.tasks.urls")),
+    path("", include("apps.notifications.urls")),
 ]
