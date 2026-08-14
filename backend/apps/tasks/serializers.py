@@ -1,5 +1,8 @@
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
 from .models import Task, TaskShare
+
+User = get_user_model()
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -20,9 +23,17 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
 class TaskShareSerializer(serializers.ModelSerializer):
+    shared_with = serializers.PrimaryKeyRelatedField(read_only=True)
+    shared_with_username = serializers.SlugRelatedField(
+        source="shared_with",
+        slug_field="username",
+        queryset=User.objects.all(),
+        write_only=True,
+    )
+
     class Meta:
         model = TaskShare
-        fields = ["id", "task", "shared_with", "can_edit", "created_at"]
+        fields = ["id", "task", "shared_with", "shared_with_username", "can_edit", "created_at"]
         read_only_fields = ["created_at"]
 
     def validate(self, attrs):

@@ -31,3 +31,26 @@ def test_task_sharing_read_and_edit_permissions():
     response = editor_client.patch(f"/api/tasks/{task.id}/", {"title": "Edited"}, format="json")
     assert response.status_code == 200
     assert response.data["title"] == "Edited"
+
+
+@pytest.mark.django_db
+def test_owner_can_share_a_task_using_username(monkeypatch):
+    owner = User.objects.create_user(username="share-owner", password="password123")
+    recipient = User.objects.create_user(username="recipient", password="password123")
+    task = Task.objects.create(owner=owner, title="Task to share")
+    client = APIClient()
+    client.force_authenticate(user=owner)
+
+    monkeypatch.setattr(
+        "apps.tasks.views.NotificationService.create_and_send",
+        lambda **kwargs: None,
+    )
+    response = client.post(
+        "/api/task-shares/",
+        {"task": task.id, "shared_with_username": recipient.username, "can_edit": False},
+        format="json",
+    )
+
+    assert response.status_code == 201
+    assert response.data["shared_with"] == recipient.id
+    assert TaskShare.objects.filter(task=task, shared_with=recipient, can_edit=False).exists()
