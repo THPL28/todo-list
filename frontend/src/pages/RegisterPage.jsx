@@ -17,7 +17,11 @@ export default function RegisterPage() {
       await register({ username, email, password })
       navigate("/login", { replace: true })
     } catch (err) {
-      setError("Erro ao registrar. Verifique os dados e tente novamente.")
+      const details = err.response?.data
+      const message = details && typeof details === "object"
+        ? Object.values(details).flat().join(" ")
+        : "Erro ao registrar. Verifique os dados e tente novamente."
+      setError(message)
     }
   }
 
