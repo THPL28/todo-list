@@ -1,7 +1,7 @@
 import api from "../auth/api"
 
-export async function fetchTasks() {
-  const response = await api.get("/tasks/")
+export async function fetchTasks(params = {}) {
+  const response = await api.get("/tasks/", { params })
   return response.data
 }
 

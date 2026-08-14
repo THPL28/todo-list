@@ -2,13 +2,14 @@ import { useEffect, useState } from "react"
 import { createTask } from "../services/tasks"
 import { fetchCategories } from "../services/categories"
 
-export default function TaskForm({ onTaskCreated }) {
+export default function TaskForm({ onTaskCreated, categoriesVersion }) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [dueDate, setDueDate] = useState("")
   const [category, setCategory] = useState("")
   const [categories, setCategories] = useState([])
   const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -19,11 +20,12 @@ export default function TaskForm({ onTaskCreated }) {
         setError("Não foi possível carregar categorias.")
       }
     })()
-  }, [])
+  }, [categoriesVersion])
 
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError(null)
+    setLoading(true)
 
     try {
       const task = await createTask({
@@ -32,13 +34,15 @@ export default function TaskForm({ onTaskCreated }) {
         due_date: dueDate || null,
         category: category || null,
       })
-      onTaskCreated(task)
+      onTaskCreated?.(task)
       setTitle("")
       setDescription("")
       setDueDate("")
       setCategory("")
     } catch (err) {
       setError("Erro ao criar tarefa.")
+    } finally {
+      setLoading(false)
     }
   }
 

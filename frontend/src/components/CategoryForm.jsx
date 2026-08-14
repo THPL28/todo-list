@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { createCategory, fetchCategories } from "../services/categories"
 
-export default function CategoryForm() {
+export default function CategoryForm({ onCategoryCreated }) {
   const [name, setName] = useState("")
   const [categories, setCategories] = useState([])
   const [error, setError] = useState(null)
@@ -25,6 +25,7 @@ export default function CategoryForm() {
     try {
       const created = await createCategory({ name })
       setCategories((prev) => [...prev, created])
+      onCategoryCreated?.(created)
       setName("")
     } catch (err) {
       setError("Erro ao criar categoria.")
