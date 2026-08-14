@@ -4,6 +4,7 @@ psycopg[binary]>=2.9
  djangorestframework-simplejwt>=2.0
  drf-spectacular>=0.28
 django-filter>=23.2
+django-cors-headers>=4.4
 requests>=2.32
 pytest>=8.4
  pytest-django>=4.0
