@@ -1,59 +1,18 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { login } from "../auth/api"
+import { Link, useNavigate } from "react-router-dom"
+import { login, setAuthToken } from "../auth/api"
 import { useAuth } from "../auth/AuthContext"
-import { setAuthToken } from "../auth/api"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState(null)
-  const { login: loginUser } = useAuth()
+  const { login: saveToken } = useAuth()
   const navigate = useNavigate()
-
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    setError(null)
-
-    try {
-      const data = await login(username, password)
-      const { access } = data
-      loginUser(access)
-      setAuthToken(access)
-      navigate("/", { replace: true })
-    } catch (err) {
-      setError("Erro ao autenticar. Verifique usuário e senha.")
-    }
+  const submit = async (event) => {
+    event.preventDefault(); setError(null)
+    try { const { access } = await login(username, password); saveToken(access); setAuthToken(access); navigate("/", { replace: true }) }
+    catch { setError("Não foi possível entrar. Revise suas credenciais.") }
   }
-
-  return (
-    <div style={{ maxWidth: 400, margin: "2rem auto", padding: "1rem" }}>
-      <h1>Entrar</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Usuário
-          <input
-            type="text"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Senha
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
-        </label>
-        <button type="submit">Entrar</button>
-      </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <p>
-        Não tem conta? <a href="/register">Registre-se</a>
-      </p>
-    </div>
-  )
+  return <div className="auth-page"><section className="auth-card reveal"><span className="eyebrow">todo / workspace</span><h1>Boas-vindas.</h1><p>Entre para organizar o que importa.</p><form className="stack" onSubmit={submit}><label>Usuário<input value={username} onChange={(e) => setUsername(e.target.value)} required /></label><label>Senha<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label><button>Entrar</button></form>{error && <p className="error">{error}</p>}<p>Não tem conta? <Link to="/register">Crie sua conta</Link></p></section></div>
 }

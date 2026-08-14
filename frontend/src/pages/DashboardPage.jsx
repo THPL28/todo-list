@@ -1,32 +1,10 @@
+import { useState } from "react"
 import { useAuth } from "../auth/AuthContext"
 import TaskList from "../components/TaskList"
 import TaskForm from "../components/TaskForm"
 import CategoryForm from "../components/CategoryForm"
-import { useState } from "react"
 
 export default function DashboardPage() {
-  const { logout } = useAuth()
-  const [tasksVersion, setTasksVersion] = useState(0)
-  const [categoriesVersion, setCategoriesVersion] = useState(0)
-
-  return (
-    <div style={{ maxWidth: 1000, margin: "2rem auto", padding: "1rem" }}>
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h1>Dashboard</h1>
-        <button onClick={logout}>Sair</button>
-      </header>
-      <div style={{ display: "grid", gap: "2rem", gridTemplateColumns: "2fr 1fr" }}>
-        <div>
-          <TaskForm
-            categoriesVersion={categoriesVersion}
-            onTaskCreated={() => setTasksVersion((version) => version + 1)}
-          />
-          <TaskList refreshVersion={tasksVersion} />
-        </div>
-        <div>
-          <CategoryForm onCategoryCreated={() => setCategoriesVersion((version) => version + 1)} />
-        </div>
-      </div>
-    </div>
-  )
+  const { logout } = useAuth(); const [tasksVersion, setTasksVersion] = useState(0); const [categoriesVersion, setCategoriesVersion] = useState(0)
+  return <div className="dashboard"><header className="topbar reveal"><div><span className="eyebrow">painel pessoal</span><h1>Seu foco, organizado.</h1></div><button onClick={logout}>Sair</button></header><div className="dashboard-grid"><div><section className="panel reveal"><TaskForm categoriesVersion={categoriesVersion} onTaskCreated={() => setTasksVersion((v) => v + 1)} /></section><section className="panel reveal"><TaskList refreshVersion={tasksVersion} /></section></div><section className="panel reveal"><CategoryForm onCategoryCreated={() => setCategoriesVersion((v) => v + 1)} /></section></div></div>
 }
