@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: todo_test
+          POSTGRES_USER: todo
+          POSTGRES_PASSWORD: todo123
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U todo"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: 5432
+      POSTGRES_DB: todo_test
+      POSTGRES_USER: todo
+      POSTGRES_PASSWORD: todo123
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar dependências
+        run: pip install -r backend/requirements.txt black flake8
+      - name: Verificar formatação
+        run: black --check backend notification_api
+      - name: Executar lint
+        run: flake8 backend notification_api
+      - name: Executar testes do backend
+        working-directory: backend
+        run: pytest
+
+  notification-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar dependências
+        run: pip install -r notification_api/requirements.txt
+      - name: Executar testes da API externa
+        working-directory: notification_api
+        run: pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Instalar dependências
+        working-directory: frontend
+        run: npm ci
+      - name: Executar lint
+        working-directory: frontend
+        run: npx --yes eslint@8 src
+      - name: Gerar build
+        working-directory: frontend
+        run: npm run build
