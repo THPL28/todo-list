@@ -18,3 +18,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             password=validated_data["password"],
         )
         return user
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Read-only serializer for the authenticated user's own profile."""
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email"]
+        read_only_fields = ["id", "username", "email"]
