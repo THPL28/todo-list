@@ -46,4 +46,9 @@ export async function register({ username, email, password }) {
   return response.data
 }
 
+export async function fetchMe() {
+  const response = await api.get("/auth/me/")
+  return response.data
+}
+
 export default api
